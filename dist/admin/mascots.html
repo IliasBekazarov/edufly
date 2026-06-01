@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="ky">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Дух беруучу сүрөттөр — FinLingvo Admin</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: Inter, system-ui, sans-serif;
+      background: #0B0F1A;
+      color: #E6E9F2;
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+    .topbar {
+      background: #101524;
+      border-bottom: 1px solid #1F2538;
+      padding: 14px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky; top: 0; z-index: 10;
+    }
+    .topbar-title { font-weight: 700; font-size: 16px; }
+    .topbar-title span { color: #0B90E0; }
+    .back-link { color: #7C8499; text-decoration: none; font-size: 13px; }
+    .back-link:hover { color: #E6E9F2; }
+    .container { max-width: 720px; margin: 0 auto; padding: 32px 20px; }
+    h1 { font-size: 22px; font-weight: 800; margin-bottom: 6px; }
+    .subtitle { color: #7C8499; font-size: 13px; margin-bottom: 28px; line-height: 1.6; }
+
+    /* Login */
+    #login-section { max-width: 360px; margin: 80px auto; background: #101524; border: 1px solid #1F2538; border-radius: 20px; padding: 28px; }
+    #login-section h2 { font-size: 18px; margin-bottom: 18px; text-align: center; }
+
+    input[type="password"], input[type="url"] {
+      width: 100%; background: #0B0F1A; border: 1.5px solid #1F2538;
+      border-radius: 12px; color: #E6E9F2; font-size: 14px; padding: 10px 14px;
+      outline: none; transition: border-color .2s; font-family: inherit;
+    }
+    input:focus { border-color: #0B90E0; }
+    button { cursor: pointer; font-family: inherit; font-weight: 700; border: none; }
+
+    .btn-primary {
+      width: 100%; background: #0B90E0; color: #fff; border-radius: 12px;
+      padding: 12px; font-size: 14px; margin-top: 12px; transition: opacity .15s;
+    }
+    .btn-primary:hover { opacity: .85; }
+    .btn-save { background: #0B90E0; color: #fff; border-radius: 10px; padding: 9px 18px; font-size: 13px; transition: opacity .15s; white-space: nowrap; }
+    .btn-save:hover { opacity: .85; }
+    .btn-save:disabled { opacity: .45; cursor: not-allowed; }
+    .btn-remove { background: rgba(255,75,75,.15); color: #FF4B4B; border-radius: 10px; padding: 9px 14px; font-size: 13px; border: 1px solid rgba(255,75,75,.3); white-space: nowrap; }
+    .btn-remove:hover { opacity: .8; }
+
+    .error-msg { background: rgba(255,75,75,.12); border: 1px solid rgba(255,75,75,.4); color: #FF4B4B; border-radius: 10px; padding: 10px 14px; font-size: 13px; margin-bottom: 14px; }
+
+    /* Module card */
+    .module-card { background: #101524; border: 1px solid #1F2538; border-radius: 20px; padding: 20px; margin-bottom: 14px; }
+    .module-header { display: flex; align-items: center; gap: 12px; margin-bottom: 18px; }
+    .module-icon { width: 44px; height: 44px; background: rgba(11,144,224,.15); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0; }
+    .module-meta { flex: 1; min-width: 0; }
+    .module-meta strong { font-size: 14px; font-weight: 700; display: block; }
+    .module-meta small { font-size: 12px; color: #7C8499; }
+    .badge { font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 6px; white-space: nowrap; }
+    .badge-set { background: rgba(28,176,246,.15); color: #1CB0F6; }
+    .badge-none { background: #1F2538; color: #7C8499; }
+
+    /* Upload area */
+    .upload-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: #7C8499; margin-bottom: 8px; display: block; }
+
+    .drop-zone {
+      border: 2px dashed #1F2538; border-radius: 14px; padding: 20px 16px;
+      text-align: center; cursor: pointer; transition: all .2s; margin-bottom: 12px;
+      background: #0B0F1A;
+    }
+    .drop-zone:hover, .drop-zone.drag-over { border-color: #0B90E0; background: rgba(11,144,224,.06); }
+    .drop-zone input[type="file"] { display: none; }
+    .drop-zone-text { font-size: 13px; color: #7C8499; line-height: 1.6; }
+    .drop-zone-text strong { color: #0B90E0; }
+    .drop-zone-icon { font-size: 28px; margin-bottom: 8px; display: block; }
+
+    .url-row { display: flex; gap-8px; align-items: center; gap: 8px; }
+    .url-row input { flex: 1; }
+
+    .preview-wrap { margin-top: 12px; display: none; position: relative; }
+    .preview-wrap.show { display: block; }
+    .preview-wrap img { max-height: 160px; max-width: 100%; border-radius: 12px; border: 1px solid #1F2538; object-fit: contain; background: #0B0F1A; display: block; }
+    .preview-filename { font-size: 11px; color: #7C8499; margin-top: 6px; }
+
+    .action-row { display: flex; gap: 8px; align-items: center; margin-top: 14px; }
+    .action-row .spacer { flex: 1; }
+
+    .uploading-bar {
+      display: none; height: 3px; background: #1F2538; border-radius: 2px; margin-top: 10px; overflow: hidden;
+    }
+    .uploading-bar.show { display: block; }
+    .uploading-bar-inner { height: 100%; background: #0B90E0; width: 0; transition: width .3s; border-radius: 2px; }
+
+    /* Toast */
+    .toast { position: fixed; bottom: 24px; right: 24px; background: #101524; border: 1px solid #1F2538; border-radius: 12px; padding: 12px 18px; font-size: 13px; font-weight: 600; box-shadow: 0 8px 32px rgba(0,0,0,.4); opacity: 0; transform: translateY(8px); transition: all .25s; z-index: 999; pointer-events: none; }
+    .toast.show { opacity: 1; transform: translateY(0); }
+    .toast.success { border-color: rgba(11,144,224,.5); color: #1CB0F6; }
+    .toast.err { border-color: rgba(255,75,75,.5); color: #FF4B4B; }
+
+    #loading { text-align: center; color: #7C8499; padding: 60px 0; font-size: 14px; }
+  </style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-title">FinLingvo <span>·</span> Дух беруучу сүрөттөр</div>
+  <a href="/admin/" class="back-link">← Артка</a>
+</div>
+
+<div id="login-section" style="display:none">
+  <h2>Admin кирүү</h2>
+  <div id="login-error" class="error-msg" style="display:none"></div>
+  <input type="password" id="pwd-input" placeholder="Сырсөз" autocomplete="current-password" />
+  <button class="btn-primary" onclick="doLogin()">Кирүү</button>
+</div>
+
+<div class="container" id="content-section" style="display:none">
+  <h1>Дух беруучу сүрөттөр</h1>
+  <p class="subtitle">
+    Ар бир модулдун башына колдонуучуну шыктандыруучу сүрөт коюңуз.<br/>
+    PNG/WebP прозрачный фон менен мыкты иштейт. Максималдуу файл: 6 MB.
+  </p>
+  <div id="loading">Жүктөлүүдө...</div>
+  <div id="modules-list"></div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script>
+const API = '/admin/api';
+let token = localStorage.getItem('fl_admin_token');
+let modules = [];
+
+// Selected local files per module (before upload)
+const pending = {};
+
+function showToast(msg, type = 'success') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show ' + type;
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+async function apiFetch(path, opts = {}) {
+  const res = await fetch(API + path, {
+    ...opts,
+    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token, ...opts.headers },
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || 'Ката');
+  return data;
+}
+
+async function doLogin() {
+  const pwd = document.getElementById('pwd-input').value;
+  const errEl = document.getElementById('login-error');
+  errEl.style.display = 'none';
+  try {
+    const r = await fetch(API + '/login', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ password: pwd }),
+    });
+    const data = await r.json();
+    if (!r.ok) throw new Error(data.error || 'Туура эмес');
+    token = data.token;
+    localStorage.setItem('fl_admin_token', token);
+    document.getElementById('login-section').style.display = 'none';
+    await loadModules();
+  } catch (e) {
+    errEl.textContent = e.message;
+    errEl.style.display = 'block';
+  }
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && document.getElementById('login-section').style.display !== 'none') doLogin();
+});
+
+async function loadModules() {
+  document.getElementById('content-section').style.display = 'block';
+  try {
+    modules = await apiFetch('/modules');
+    renderModules();
+    document.getElementById('loading').style.display = 'none';
+  } catch (e) {
+    if (/unauthorized|invalid/i.test(e.message)) {
+      token = null; localStorage.removeItem('fl_admin_token'); init();
+    } else {
+      document.getElementById('loading').textContent = 'Ката: ' + e.message;
+    }
+  }
+}
+
+function renderModules() {
+  const list = document.getElementById('modules-list');
+  list.innerHTML = '';
+  modules.forEach(mod => {
+    const hasImage = !!mod.mascotImage;
+    const card = document.createElement('div');
+    card.className = 'module-card';
+    card.id = 'card-' + mod.id;
+    card.innerHTML = `
+      <div class="module-header">
+        <div class="module-icon">${mod.emoji}</div>
+        <div class="module-meta">
+          <strong>${mod.id}-бөлүм · ${mod.title}</strong>
+          <small>${mod.lessons?.length ?? 0} сабак</small>
+        </div>
+        <span class="badge ${hasImage ? 'badge-set' : 'badge-none'}" id="badge-${mod.id}">
+          ${hasImage ? '✓ Сүрөт бар' : 'Сүрөт жок'}
+        </span>
+      </div>
+
+      <label class="upload-label">Сүрөт жүктөө</label>
+
+      <!-- Drop zone -->
+      <div class="drop-zone" id="dz-${mod.id}" onclick="document.getElementById('file-${mod.id}').click()"
+           ondragover="onDragOver(event,${mod.id})" ondragleave="onDragLeave(event,${mod.id})"
+           ondrop="onDrop(event,${mod.id})">
+        <input type="file" id="file-${mod.id}" accept="image/*" onchange="onFileSelect(${mod.id},this.files[0])" />
+        <span class="drop-zone-icon">📁</span>
+        <div class="drop-zone-text">
+          <strong>Файл тандоо</strong> же бул жерге сүйрөп таштаңыз<br/>
+          <span style="font-size:11px">PNG, JPG, WebP, SVG · мак. 6 MB</span>
+        </div>
+      </div>
+
+      <!-- URL input fallback -->
+      <div class="url-row" style="margin-bottom:0">
+        <input type="url" id="url-${mod.id}" placeholder="же URL жазыңыз: https://..." value="${mod.mascotImage || ''}" oninput="onUrlInput(${mod.id})" />
+      </div>
+
+      <!-- Progress bar -->
+      <div class="uploading-bar" id="bar-${mod.id}"><div class="uploading-bar-inner" id="bar-inner-${mod.id}"></div></div>
+
+      <!-- Preview -->
+      <div class="preview-wrap ${hasImage ? 'show' : ''}" id="preview-${mod.id}">
+        ${hasImage ? `<img src="${mod.mascotImage}" alt="" onerror="this.style.display='none'" id="preview-img-${mod.id}"/>` : `<img style="display:none" id="preview-img-${mod.id}"/>`}
+        <div class="preview-filename" id="preview-name-${mod.id}"></div>
+      </div>
+
+      <div class="action-row">
+        <div class="spacer"></div>
+        ${hasImage ? `<button class="btn-remove" onclick="removeImage(${mod.id})">Өчүр</button>` : ''}
+        <button class="btn-save" id="save-btn-${mod.id}" onclick="saveModule(${mod.id})">Сакта</button>
+      </div>
+    `;
+    list.appendChild(card);
+  });
+}
+
+// ── Drag & Drop ──────────────────────────────────────────────────────────────
+function onDragOver(e, id) {
+  e.preventDefault();
+  document.getElementById('dz-' + id).classList.add('drag-over');
+}
+function onDragLeave(e, id) {
+  document.getElementById('dz-' + id).classList.remove('drag-over');
+}
+function onDrop(e, id) {
+  e.preventDefault();
+  document.getElementById('dz-' + id).classList.remove('drag-over');
+  const file = e.dataTransfer.files[0];
+  if (file) onFileSelect(id, file);
+}
+
+// ── File selected ─────────────────────────────────────────────────────────────
+function onFileSelect(modId, file) {
+  if (!file) return;
+  if (file.size > 6 * 1024 * 1024) { showToast('Файл өтө чоң (мак. 6 MB)', 'err'); return; }
+  pending[modId] = file;
+
+  // Show preview
+  const reader = new FileReader();
+  reader.onload = e => {
+    const img = document.getElementById('preview-img-' + modId);
+    img.src = e.target.result;
+    img.style.display = 'block';
+    document.getElementById('preview-' + modId).classList.add('show');
+    document.getElementById('preview-name-' + modId).textContent = file.name + ' · ' + (file.size / 1024).toFixed(0) + ' KB';
+  };
+  reader.readAsDataURL(file);
+
+  // Clear URL input so file takes priority
+  document.getElementById('url-' + modId).value = '';
+}
+
+function onUrlInput(modId) {
+  delete pending[modId];
+  const url = document.getElementById('url-' + modId).value.trim();
+  const img = document.getElementById('preview-img-' + modId);
+  const wrap = document.getElementById('preview-' + modId);
+  if (url) {
+    img.src = url;
+    img.style.display = 'block';
+    wrap.classList.add('show');
+    document.getElementById('preview-name-' + modId).textContent = '';
+  } else {
+    wrap.classList.remove('show');
+  }
+}
+
+// ── Upload file to server ─────────────────────────────────────────────────────
+function readFileAsBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = e => resolve(e.target.result);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+async function uploadFile(modId, file) {
+  const bar = document.getElementById('bar-' + modId);
+  const barInner = document.getElementById('bar-inner-' + modId);
+  bar.classList.add('show');
+  barInner.style.width = '30%';
+
+  const data = await readFileAsBase64(file);
+  barInner.style.width = '60%';
+
+  const result = await apiFetch('/upload', {
+    method: 'POST',
+    body: JSON.stringify({ data, name: file.name }),
+  });
+  barInner.style.width = '100%';
+  setTimeout(() => bar.classList.remove('show'), 500);
+  return result.url;
+}
+
+// ── Save ──────────────────────────────────────────────────────────────────────
+async function saveModule(modId) {
+  const btn = document.getElementById('save-btn-' + modId);
+  btn.disabled = true;
+  btn.textContent = 'Сакталууда...';
+
+  try {
+    let imageUrl;
+
+    if (pending[modId]) {
+      // Upload local file first
+      imageUrl = await uploadFile(modId, pending[modId]);
+      delete pending[modId];
+    } else {
+      imageUrl = document.getElementById('url-' + modId).value.trim() || null;
+    }
+
+    await apiFetch('/modules/' + modId, {
+      method: 'PUT',
+      body: JSON.stringify({ mascotImage: imageUrl }),
+    });
+
+    const mod = modules.find(m => m.id === modId);
+    if (mod) mod.mascotImage = imageUrl || undefined;
+
+    // Update badge and remove button inline
+    const badge = document.getElementById('badge-' + modId);
+    badge.className = 'badge ' + (imageUrl ? 'badge-set' : 'badge-none');
+    badge.textContent = imageUrl ? '✓ Сүрөт бар' : 'Сүрөт жок';
+
+    if (imageUrl) {
+      document.getElementById('url-' + modId).value = imageUrl;
+    }
+
+    showToast('Сакталды ✓');
+  } catch (e) {
+    showToast(e.message, 'err');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Сакта';
+  }
+}
+
+async function removeImage(modId) {
+  if (!confirm('Сүрөттү өчүрөсүзбү?')) return;
+  try {
+    await apiFetch('/modules/' + modId, { method: 'PUT', body: JSON.stringify({ mascotImage: null }) });
+    const mod = modules.find(m => m.id === modId);
+    if (mod) delete mod.mascotImage;
+    delete pending[modId];
+    showToast('Өчүрүлдү');
+    renderModules();
+  } catch (e) {
+    showToast(e.message, 'err');
+  }
+}
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+function init() {
+  if (token) {
+    loadModules();
+  } else {
+    document.getElementById('login-section').style.display = 'block';
+  }
+}
+
+init();
+</script>
+</body>
+</html>

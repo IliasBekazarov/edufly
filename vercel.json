@@ -1,0 +1,10 @@
+{
+  "buildCommand": "node build.mjs",
+  "outputDirectory": "dist",
+  "rewrites": [
+    { "source": "/admin/api/:path*", "destination": "https://may.caim.dev/admin/api/:path*" },
+    { "source": "/mascots/:path*",   "destination": "https://may.caim.dev/mascots/:path*" },
+    { "source": "/admin/:path*",     "destination": "/admin/index.html" },
+    { "source": "/(.*)",             "destination": "/index.html" }
+  ]
+}
