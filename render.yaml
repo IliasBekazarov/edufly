@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: finlingvo-api
+    runtime: node
+    rootDir: admin-api
+    buildCommand: npm install
+    startCommand: node src/server.js
+    envVars:
+      - key: PORT
+        value: 10000
+      - key: MONGO_URI
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: ADMIN_PASSWORD
+        sync: false
