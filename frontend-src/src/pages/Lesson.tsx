@@ -164,7 +164,10 @@ export function Lesson({ modules, user }: LessonProps) {
         </div>
 
         <div className="font-display font-bold text-xl leading-snug">
-          {q.q}
+          {q.type === 'fill'
+            ? <FillQuestionText text={q.q} filled={phase === 'feedback' ? String(q.opts?.[q.a as number] ?? '') : null} isCorrect={isCorrect} color={color} />
+            : q.q
+          }
         </div>
 
         {/* Answer options */}
@@ -258,6 +261,52 @@ export function Lesson({ modules, user }: LessonProps) {
         </div>
       </div>
     )}
+    </>
+  )
+}
+
+function FillQuestionText({
+  text,
+  filled,
+  isCorrect,
+  color,
+}: {
+  text: string
+  filled: string | null
+  isCorrect: boolean
+  color: string
+}) {
+  const BLANK = '__________'
+  const parts = text.split(BLANK)
+  if (parts.length < 2) return <>{text}</>
+
+  const blankStyle: React.CSSProperties = filled
+    ? {
+        display: 'inline-block',
+        minWidth: 80,
+        borderBottom: `2px solid ${isCorrect ? color : '#FF4B4B'}`,
+        color: isCorrect ? color : '#FF4B4B',
+        paddingBottom: 1,
+        textAlign: 'center',
+      }
+    : {
+        display: 'inline-block',
+        minWidth: 80,
+        borderBottom: '2px solid #7C8499',
+        color: 'transparent',
+        userSelect: 'none',
+      }
+
+  return (
+    <>
+      {parts.map((part, i) => (
+        <span key={i}>
+          {part}
+          {i < parts.length - 1 && (
+            <span style={blankStyle}>{filled ?? '     '}</span>
+          )}
+        </span>
+      ))}
     </>
   )
 }
