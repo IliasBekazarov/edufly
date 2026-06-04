@@ -15,77 +15,136 @@ const NAV = [
   { to: '/settings',    icon: Settings,     label: 'Орнотуу' },
 ]
 
-function navClass({ isActive }: { isActive: boolean }) {
-  return isActive
-    ? 'group flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all bg-[#0B90E0] text-white shadow-[0_0_40px_rgba(11,144,224,.35)]'
-    : 'group flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all text-muted hover:text-text hover:bg-line/40'
-}
-
-function mobileNavClass({ isActive }: { isActive: boolean }) {
-  return `flex-1 flex flex-col items-center gap-0.5 py-2 text-[11px] font-bold transition-all ${isActive ? 'text-[#0B90E0]' : 'text-muted'}`
-}
-
 export function Layout({ user }: LayoutProps) {
   const s = user?.state
   const hearts = s?.hearts ?? 5
 
   return (
     <div className="min-h-screen lg:flex">
-      {/* Desktop sidebar */}
-      <aside className="hidden lg:flex w-[260px] shrink-0 sticky top-0 h-screen flex-col border-r border-line bg-ink2/60 backdrop-blur-xl">
-        <div className="px-5 py-5 flex items-center gap-3 border-b border-line">
-          <Mascot size={40} />
+
+      {/* ── Desktop sidebar ──────────────────────────────── */}
+      <aside
+        className="hidden lg:flex w-[260px] shrink-0 sticky top-0 h-screen flex-col"
+        style={{
+          background: 'rgba(5,8,20,0.6)',
+          backdropFilter: 'blur(40px) saturate(180%)',
+          WebkitBackdropFilter: 'blur(40px) saturate(180%)',
+          borderRight: '1px solid rgba(255,255,255,0.06)',
+        }}
+      >
+        {/* Logo */}
+        <div
+          className="px-5 py-5 flex items-center gap-3"
+          style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}
+        >
+          <div
+            className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
+            style={{
+              background: 'linear-gradient(135deg, #5B6EF0, #A78BFA)',
+              boxShadow: '0 4px 16px rgba(91,110,240,.45)',
+            }}
+          >
+            <Mascot size={26} />
+          </div>
           <div>
-            <div className="font-display font-bold text-lg leading-none bg-clip-text text-transparent bg-grad-brand">
+            <div
+              className="font-display font-bold text-[17px] leading-tight bg-clip-text text-transparent"
+              style={{ backgroundImage: 'linear-gradient(135deg, #818CF8, #C4B5FD)' }}
+            >
               FinLingvo
             </div>
-            <div className="text-xs text-muted mt-1">Кыргызча финансы</div>
+            <div className="text-[11px] text-muted mt-0.5">Кыргызча финансы</div>
           </div>
         </div>
 
-        <nav className="flex-1 px-3 py-4 space-y-1">
+        {/* Nav */}
+        <nav className="flex-1 px-3 py-4 space-y-0.5">
           {NAV.map(({ to, icon: Icon, label }) => (
-            <NavLink key={to} to={to} className={navClass}>
-              <Icon size={20} />
-              {label}
+            <NavLink key={to} to={to} className="block rounded-xl overflow-hidden">
+              {({ isActive }) => (
+                <div
+                  className="flex items-center gap-3 px-4 py-2.5 text-sm font-semibold transition-all duration-200 relative"
+                  style={isActive ? {
+                    background: 'linear-gradient(135deg, rgba(91,110,240,.22), rgba(167,139,250,.16))',
+                    border: '1px solid rgba(91,110,240,.28)',
+                    borderRadius: '12px',
+                    color: '#EEF2FF',
+                    boxShadow: '0 4px 20px rgba(91,110,240,.15)',
+                  } : {
+                    color: '#5E7194',
+                  }}
+                >
+                  <Icon size={18} className="shrink-0" />
+                  <span>{label}</span>
+                  {isActive && (
+                    <div
+                      className="absolute right-3 w-1.5 h-1.5 rounded-full"
+                      style={{ background: 'linear-gradient(135deg, #5B6EF0, #A78BFA)' }}
+                    />
+                  )}
+                </div>
+              )}
             </NavLink>
           ))}
         </nav>
 
-        <div className="m-3 p-3 rounded-2xl border border-line bg-ink3/60 text-xs text-muted">
-          <div className="font-bold text-text mb-1">Кеңеш</div>
+        {/* Tip card */}
+        <div
+          className="m-3 p-3.5 rounded-2xl text-xs text-muted"
+          style={{
+            background: 'rgba(255,255,255,0.03)',
+            border: '1px solid rgba(255,255,255,0.06)',
+          }}
+        >
+          <div className="font-bold text-text text-xs mb-1">💡 Кеңеш</div>
           Жашоону жоготпой машыгуу үчүн «Кайталоо» баскычын колдон.
         </div>
       </aside>
 
       <div className="flex-1 min-w-0 flex flex-col">
-        {/* Header */}
-        <header className="sticky top-0 z-30 backdrop-blur-xl bg-ink/70 border-b border-line">
-          <div className="px-4 lg:px-8 py-3 flex items-center gap-3 max-w-[1100px] mx-auto pt-safe">
-            <div className="lg:hidden flex items-center gap-2 mr-auto">
-              <Mascot size={28} />
-              <span className="font-display font-bold text-base bg-clip-text text-transparent bg-grad-brand">
+
+        {/* ── Header ───────────────────────────────────────── */}
+        <header
+          className="sticky top-0 z-30 pt-safe"
+          style={{
+            background: 'rgba(5,8,20,0.72)',
+            backdropFilter: 'blur(28px) saturate(180%)',
+            WebkitBackdropFilter: 'blur(28px) saturate(180%)',
+            borderBottom: '1px solid rgba(255,255,255,0.06)',
+          }}
+        >
+          <div className="px-4 lg:px-8 py-3 flex items-center gap-3 max-w-[1100px] mx-auto">
+            {/* Mobile logo */}
+            <div className="lg:hidden flex items-center gap-2.5 mr-auto">
+              <div
+                className="w-7 h-7 rounded-lg flex items-center justify-center"
+                style={{ background: 'linear-gradient(135deg, #5B6EF0, #A78BFA)' }}
+              >
+                <Mascot size={18} />
+              </div>
+              <span
+                className="font-display font-bold text-[15px] bg-clip-text text-transparent"
+                style={{ backgroundImage: 'linear-gradient(135deg, #818CF8, #C4B5FD)' }}
+              >
                 FinLingvo
               </span>
             </div>
             <div className="hidden lg:block flex-1" />
+
+            {/* Stats */}
             <div className="flex items-center gap-2">
-              <span className="stat-pill" style={{ color: '#FF9600' }}>
-                <Flame size={16} fill="#FF9600" />
+              <span className="stat-pill" style={{ color: '#FB923C' }}>
+                <Flame size={14} fill="#FB923C" />
                 {s?.streak ?? 0}
               </span>
-              <span className="stat-pill" style={{ color: '#1CB0F6' }}>
-                <Gem size={16} fill="#1CB0F6" />
+              <span className="stat-pill" style={{ color: '#38BDF8' }}>
+                <Gem size={14} fill="#38BDF8" />
                 {s?.gems ?? 0}
               </span>
-              <div
-                className="stat-pill"
-                title={hearts >= 5 ? 'Толук' : `${hearts}/5 жашоо`}
-                style={{ color: '#FF4B4B' }}
-              >
-                <Heart size={16} fill="#FF4B4B" />
-                <span>{hearts}</span>
-              </div>
+              <span className="stat-pill" style={{ color: '#F87171' }}>
+                <Heart size={14} fill="#F87171" />
+                {hearts}
+              </span>
             </div>
           </div>
         </header>
@@ -94,17 +153,42 @@ export function Layout({ user }: LayoutProps) {
           <Outlet />
         </main>
 
-        {/* Mobile bottom nav */}
-        <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-30 bg-ink2/85 backdrop-blur-xl border-t border-line pb-safe">
+        {/* ── Mobile bottom nav ────────────────────────────── */}
+        <nav
+          className="lg:hidden fixed bottom-0 left-0 right-0 z-30 pb-safe"
+          style={{
+            background: 'rgba(5,8,20,0.88)',
+            backdropFilter: 'blur(32px) saturate(180%)',
+            WebkitBackdropFilter: 'blur(32px) saturate(180%)',
+            borderTop: '1px solid rgba(255,255,255,0.07)',
+          }}
+        >
           <div className="flex">
             {NAV.map(({ to, icon: Icon, label }) => (
-              <NavLink key={to} to={to} className={mobileNavClass}>
-                <Icon size={22} />
-                <span>{label}</span>
+              <NavLink key={to} to={to} className="flex-1">
+                {({ isActive }) => (
+                  <div
+                    className={`flex flex-col items-center gap-1 py-2.5 text-[10px] font-bold transition-all duration-200 ${
+                      isActive ? 'text-brand' : 'text-muted'
+                    }`}
+                  >
+                    <div
+                      className="p-1.5 rounded-xl transition-all duration-200"
+                      style={isActive ? {
+                        background: 'rgba(91,110,240,.15)',
+                        boxShadow: '0 0 16px rgba(91,110,240,.2)',
+                      } : {}}
+                    >
+                      <Icon size={20} />
+                    </div>
+                    <span>{label}</span>
+                  </div>
+                )}
               </NavLink>
             ))}
           </div>
         </nav>
+
       </div>
     </div>
   )

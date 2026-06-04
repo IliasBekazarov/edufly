@@ -38,37 +38,74 @@ export function Auth({ onLogin, onSignup }: AuthProps) {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4">
-      <div className="w-full max-w-sm">
+    <div className="min-h-screen flex items-center justify-center px-4 py-8">
+      <div className="w-full max-w-sm animate-scale-in">
+
+        {/* ── Logo ──────────────────────────────────────── */}
         <div className="flex flex-col items-center mb-8">
-          <Mascot size={72} className="animate-floaty mb-3" />
-          <div className="font-display font-bold text-3xl bg-clip-text text-transparent bg-grad-brand">
-            FinLingvo
+          <div className="relative mb-4">
+            <div
+              className="w-20 h-20 rounded-[22px] flex items-center justify-center animate-floaty"
+              style={{
+                background: 'linear-gradient(135deg, #5B6EF0, #A78BFA)',
+                boxShadow: '0 8px 40px rgba(91,110,240,.55), 0 0 0 1px rgba(255,255,255,0.1)',
+              }}
+            >
+              <Mascot size={50} />
+            </div>
+            <div
+              className="absolute inset-0 rounded-[22px] animate-glow-pulse pointer-events-none"
+              style={{ boxShadow: '0 0 50px rgba(91,110,240,.4)', zIndex: -1 }}
+            />
           </div>
-          <div className="text-muted text-sm mt-1">Кыргызча финансы</div>
+          <h1
+            className="font-display font-bold text-3xl bg-clip-text text-transparent mb-1"
+            style={{ backgroundImage: 'linear-gradient(135deg, #818CF8, #C4B5FD)' }}
+          >
+            FinLingvo
+          </h1>
+          <p className="text-muted text-sm">Кыргызча финансылык сабатуулук</p>
         </div>
 
-        <div className="glass p-6">
-          <div className="flex rounded-xl overflow-hidden border border-line mb-5">
+        {/* ── Card ──────────────────────────────────────── */}
+        <div className="glass-elevated p-6">
+
+          {/* Tabs */}
+          <div
+            className="flex rounded-xl p-1 mb-5"
+            style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}
+          >
             {(['login', 'signup'] as const).map(m => (
               <button
                 key={m}
                 onClick={() => { setMode(m); setError(null) }}
-                className={`flex-1 py-2 text-sm font-bold transition-all ${
-                  mode === m ? 'bg-brand text-white' : 'text-muted'
-                }`}
+                className="flex-1 py-2 text-sm font-bold rounded-lg transition-all duration-250"
+                style={mode === m ? {
+                  background: 'linear-gradient(135deg, #5B6EF0, #8B6BE8)',
+                  color: '#fff',
+                  boxShadow: '0 2px 10px rgba(91,110,240,.45)',
+                } : { color: '#5E7194' }}
               >
                 {m === 'login' ? 'Кирүү' : 'Катталуу'}
               </button>
             ))}
           </div>
 
+          {/* Error */}
           {error && (
-            <div className="mb-4 p-3 rounded-xl bg-rose/15 border border-rose/40 text-rose text-sm">
-              {error}
+            <div
+              className="mb-4 p-3.5 rounded-xl text-sm flex items-center gap-2.5 animate-slide-up"
+              style={{
+                background: 'rgba(248,113,113,0.1)',
+                border: '1px solid rgba(248,113,113,0.3)',
+                color: '#FCA5A5',
+              }}
+            >
+              ⚠️ {error}
             </div>
           )}
 
+          {/* Form */}
           <form onSubmit={submit} className="space-y-3">
             {mode === 'signup' && (
               <input
@@ -97,11 +134,15 @@ export function Auth({ onLogin, onSignup }: AuthProps) {
               required
               minLength={6}
             />
-            <button type="submit" disabled={loading} className="btn3d full lg mt-1">
+            <button type="submit" disabled={loading} className="btn3d full lg mt-2">
               {loading ? <span className="spin" /> : mode === 'login' ? 'Кирүү' : 'Катталуу'}
             </button>
           </form>
         </div>
+
+        <p className="text-center text-xs text-muted mt-6">
+          Кирүү менен колдонуу шарттарына макулсуз
+        </p>
       </div>
     </div>
   )

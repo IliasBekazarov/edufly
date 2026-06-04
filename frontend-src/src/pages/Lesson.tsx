@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { X, Heart, CheckCircle, XCircle, Trophy, Star } from 'lucide-react'
+import { X, Heart, CheckCircle, XCircle, Trophy, Star, ArrowRight } from 'lucide-react'
 import { api } from '../api'
 import { setUser } from '../hooks/useApp'
 import { sounds } from '../sounds'
@@ -42,7 +42,6 @@ export function Lesson({ modules, user }: LessonProps) {
   const questions = lesson.questions
   const q = questions[idx]
   const progress = (idx + 1) / questions.length
-  const color = '#0B90E0'
 
   function checkAnswer(answer: number | boolean) {
     if (phase !== 'question') return
@@ -82,45 +81,79 @@ export function Lesson({ modules, user }: LessonProps) {
     }
   }
 
+  /* ── Complete screen ──────────────────────────────────── */
   if (phase === 'complete') {
     const perfect = mistakes === 0
     const xpToShow = reward?.xp ?? (xpEarned + (perfect ? 5 : 0))
     const gemsToShow = reward?.gems ?? null
+
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center px-4 gap-6">
-        <div className="w-20 h-20 rounded-full flex items-center justify-center" style={{ background: perfect ? '#FFD90022' : '#0B90E022', border: `2px solid ${perfect ? '#FFD900' : '#0B90E0'}` }}>
-          {perfect ? <Trophy size={40} style={{ color: '#FFD900' }} /> : <CheckCircle size={40} style={{ color: '#0B90E0' }} />}
+      <div className="min-h-screen flex flex-col items-center justify-center px-4 gap-5">
+
+        {/* Trophy */}
+        <div
+          className="w-24 h-24 rounded-full flex items-center justify-center animate-scale-in"
+          style={{
+            background: perfect
+              ? 'linear-gradient(135deg, rgba(252,211,77,.15), rgba(251,146,60,.1))'
+              : 'linear-gradient(135deg, rgba(91,110,240,.15), rgba(167,139,250,.1))',
+            border: `2px solid ${perfect ? 'rgba(252,211,77,.5)' : 'rgba(91,110,240,.5)'}`,
+            boxShadow: perfect
+              ? '0 0 40px rgba(252,211,77,.25)'
+              : '0 0 40px rgba(91,110,240,.25)',
+          }}
+        >
+          {perfect
+            ? <Trophy size={44} style={{ color: '#FCD34D' }} />
+            : <CheckCircle size={44} style={{ color: '#818CF8' }} />
+          }
         </div>
-        <div className="font-display font-bold text-3xl text-center">
-          {perfect ? 'Мыкты!' : 'Бүттү!'}
+
+        <div className="text-center animate-slide-up">
+          <div className="font-display font-bold text-4xl mb-1">
+            {perfect ? 'Мыкты!' : 'Бүттү!'}
+          </div>
+          <div className="text-muted text-sm">
+            {perfect ? 'Идеалдуу нетижe!' : 'Жакшы иштедиң!'}
+          </div>
         </div>
+
         {saveError && (
-          <div className="text-rose text-sm text-center px-4">
-            Прогресс сакталган жок — интернет байланышын текшер
+          <div
+            className="px-4 py-3 rounded-xl text-sm text-center"
+            style={{ background: 'rgba(248,113,113,.1)', border: '1px solid rgba(248,113,113,.3)', color: '#FCA5A5' }}
+          >
+            Прогресс сакталган жок — интернетти текшер
           </div>
         )}
-        <div className="glass p-6 w-full max-w-sm flex flex-col gap-4">
-          <div className="flex items-center justify-between text-sm">
-            <span className="text-muted">Тапкан XP</span>
-            <span className="font-display font-bold text-sun text-lg">+{xpToShow}</span>
+
+        {/* Results card */}
+        <div className="glass-elevated p-5 w-full max-w-sm animate-slide-up">
+          <div className="space-y-3">
+            <ResultRow label="Тапкан XP" value={`+${xpToShow}`} color="#FCD34D" />
+            {gemsToShow !== null && (
+              <ResultRow label="Гем" value={`+${gemsToShow}`} color="#38BDF8" />
+            )}
+            <ResultRow
+              label="Туура жооп"
+              value={`${questions.length - mistakes}/${questions.length}`}
+              color="#EEF2FF"
+            />
+            {perfect && (
+              <div
+                className="flex items-center justify-center gap-2 pt-2 text-xs font-bold uppercase tracking-widest"
+                style={{ color: '#FCD34D' }}
+              >
+                <Star size={12} fill="#FCD34D" /> Идеалдуу сабак
+              </div>
+            )}
           </div>
-          {gemsToShow !== null && (
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-muted">Гем</span>
-              <span className="font-display font-bold text-sky text-lg">+{gemsToShow}</span>
-            </div>
-          )}
-          <div className="flex items-center justify-between text-sm">
-            <span className="text-muted">Туура жооп</span>
-            <span className="font-bold text-text">{questions.length - mistakes}/{questions.length}</span>
-          </div>
-          {perfect && (
-            <div className="text-center text-xs text-brand font-bold uppercase tracking-wider">
-              <Star size={12} className="inline mr-1" /> Идеалдуу сабак
-            </div>
-          )}
         </div>
-        <button className="btn3d full lg max-w-sm w-full" onClick={() => navigate('/learn')}>
+
+        <button
+          className="btn3d full lg max-w-sm w-full animate-slide-up"
+          onClick={() => navigate('/learn')}
+        >
           Үйрөнүүгө кайт
         </button>
       </div>
@@ -131,134 +164,161 @@ export function Lesson({ modules, user }: LessonProps) {
 
   return (
     <>
-    <div
-      className="min-h-screen flex flex-col max-w-[640px] mx-auto px-4 pt-4"
-      style={{ paddingBottom: phase === 'feedback' ? 180 : 32 }}
-    >
-      {/* Header */}
-      <div className="flex items-center gap-3 mb-6">
-        <button
-          onClick={() => navigate('/learn')}
-          className="w-9 h-9 rounded-full flex items-center justify-center hover:bg-line/60 transition-colors text-muted"
-        >
-          <X size={20} />
-        </button>
-
-        <div className="flex-1 h-3 rounded-full bg-line overflow-hidden">
-          <div
-            className="h-full rounded-full transition-all duration-500"
-            style={{ width: `${progress * 100}%`, background: color }}
-          />
-        </div>
-
-        <div className="flex items-center gap-1 text-sm font-bold" style={{ color: '#FF4B4B' }}>
-          <Heart size={16} fill="#FF4B4B" />
-          {hearts}
-        </div>
-      </div>
-
-      {/* Question */}
-      <div className="flex-1 flex flex-col gap-5">
-        <div className="text-xs uppercase tracking-wider font-bold text-muted">
-          {idx + 1} / {questions.length}
-        </div>
-
-        <div className="font-display font-bold text-xl leading-snug">
-          {q.q}
-        </div>
-
-        {/* Answer options */}
-        <div className="flex flex-col gap-3 mt-2">
-          {q.type === 'tf' ? (
-            <>
-              {([true, false] as boolean[]).map(val => (
-                <OptionButton
-                  key={String(val)}
-                  label={val ? 'Туура' : 'Жалган'}
-                  phase={phase}
-                  isSelected={selected === val}
-                  isCorrect={val === q.a}
-                  onClick={() => checkAnswer(val)}
-                  color={color}
-                />
-              ))}
-            </>
-          ) : (
-            (q.opts ?? []).map((opt, i) => (
-              <OptionButton
-                key={i}
-                label={opt}
-                phase={phase}
-                isSelected={selected === i}
-                isCorrect={i === q.a}
-                onClick={() => checkAnswer(i)}
-                color={color}
-              />
-            ))
-          )}
-        </div>
-      </div>
-
-    </div>
-
-    {/* ── Fixed feedback panel ─────────────────────────────────── */}
-    {phase === 'feedback' && (
       <div
-        className="fixed bottom-0 left-0 right-0 z-50"
-        style={{
-          background: isCorrect
-            ? 'linear-gradient(to top, rgba(6,18,40,0.98) 0%, rgba(8,22,48,0.95) 100%)'
-            : 'linear-gradient(to top, rgba(30,8,8,0.98) 0%, rgba(40,10,10,0.95) 100%)',
-          borderTop: `2px solid ${isCorrect ? 'rgba(11,144,224,0.5)' : 'rgba(255,75,75,0.5)'}`,
-          backdropFilter: 'blur(20px)',
-        }}
+        className="min-h-screen flex flex-col max-w-[620px] mx-auto px-4 pt-5"
+        style={{ paddingBottom: phase === 'feedback' ? 200 : 32 }}
       >
-        <div className="max-w-[640px] mx-auto px-4 pt-4 pb-safe" style={{ paddingBottom: 'max(env(safe-area-inset-bottom), 80px)' }}>
-
-          {/* Status row */}
-          <div className="flex items-start gap-3 mb-4">
-            {isCorrect
-              ? <CheckCircle size={26} className="shrink-0 mt-0.5" style={{ color: '#0B90E0' }} />
-              : <XCircle size={26} className="text-rose shrink-0 mt-0.5" />
-            }
-            <div className="flex-1 min-w-0">
-              <div
-                className="font-display font-bold text-lg"
-                style={{ color: isCorrect ? '#0B90E0' : '#FF4B4B' }}
-              >
-                {isCorrect ? 'Туура!' : 'Туура эмес'}
-              </div>
-              {!isCorrect && (
-                <div className="text-sm text-muted mt-0.5">
-                  Туура жооп:{' '}
-                  <span className="font-bold text-text">
-                    {q.type === 'tf'
-                      ? (q.a ? 'Туура' : 'Жалган')
-                      : q.opts?.[q.a as number]}
-                  </span>
-                </div>
-              )}
-              {q.explanation && (
-                <div className="text-sm text-muted mt-1 leading-relaxed">
-                  {q.explanation}
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Next button — full width, easy to tap */}
+        {/* ── Lesson header ───────────────────────────── */}
+        <div className="flex items-center gap-3 mb-7">
           <button
-            onClick={next}
-            className="btn3d full lg"
-            style={{ background: isCorrect ? '#0B90E0' : '#FF4B4B' }}
+            onClick={() => navigate('/learn')}
+            className="w-9 h-9 rounded-full flex items-center justify-center transition-all duration-200 text-muted hover:text-text"
+            style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}
           >
-            {idx + 1 >= questions.length ? 'Бүттү' : 'Кийинки →'}
+            <X size={18} />
           </button>
 
+          <div
+            className="flex-1 h-2.5 rounded-full overflow-hidden"
+            style={{ background: 'rgba(255,255,255,0.07)' }}
+          >
+            <div
+              className="h-full rounded-full transition-all duration-500"
+              style={{
+                width: `${progress * 100}%`,
+                background: 'linear-gradient(90deg, #5B6EF0, #A78BFA)',
+                boxShadow: '0 0 12px rgba(91,110,240,.5)',
+              }}
+            />
+          </div>
+
+          <div
+            className="flex items-center gap-1 px-2.5 py-1 rounded-xl text-sm font-bold"
+            style={{
+              color: '#F87171',
+              background: 'rgba(248,113,113,.1)',
+              border: '1px solid rgba(248,113,113,.2)',
+            }}
+          >
+            <Heart size={14} fill="#F87171" />
+            {hearts}
+          </div>
+        </div>
+
+        {/* ── Question ────────────────────────────────── */}
+        <div className="flex-1 flex flex-col gap-5">
+          <div className="text-xs uppercase tracking-widest font-bold text-muted">
+            {idx + 1} / {questions.length}
+          </div>
+
+          <h2 className="font-display font-bold text-xl leading-snug text-text">
+            {q.q}
+          </h2>
+
+          {/* Options */}
+          <div className="flex flex-col gap-3 mt-1">
+            {q.type === 'tf' ? (
+              <>
+                {([true, false] as boolean[]).map(val => (
+                  <OptionButton
+                    key={String(val)}
+                    label={val ? 'Туура' : 'Жалган'}
+                    phase={phase}
+                    isSelected={selected === val}
+                    isCorrect={val === q.a}
+                    onClick={() => checkAnswer(val)}
+                  />
+                ))}
+              </>
+            ) : (
+              (q.opts ?? []).map((opt, i) => (
+                <OptionButton
+                  key={i}
+                  label={opt}
+                  phase={phase}
+                  isSelected={selected === i}
+                  isCorrect={i === q.a}
+                  onClick={() => checkAnswer(i)}
+                />
+              ))
+            )}
+          </div>
         </div>
       </div>
-    )}
+
+      {/* ── Feedback panel ──────────────────────────── */}
+      {phase === 'feedback' && (
+        <div
+          className="fixed bottom-0 left-0 right-0 z-50"
+          style={{
+            background: isCorrect
+              ? 'linear-gradient(to top, rgba(4,14,36,.98) 0%, rgba(6,18,44,.96) 100%)'
+              : 'linear-gradient(to top, rgba(28,6,6,.98) 0%, rgba(36,8,8,.96) 100%)',
+            borderTop: `1.5px solid ${isCorrect ? 'rgba(91,110,240,.4)' : 'rgba(248,113,113,.4)'}`,
+            backdropFilter: 'blur(32px)',
+            WebkitBackdropFilter: 'blur(32px)',
+          }}
+        >
+          <div
+            className="max-w-[620px] mx-auto px-4 pt-4 pb-safe"
+            style={{ paddingBottom: 'max(env(safe-area-inset-bottom), 80px)' }}
+          >
+            <div className="flex items-start gap-3 mb-4">
+              {isCorrect
+                ? <CheckCircle size={26} className="shrink-0 mt-0.5" style={{ color: '#818CF8' }} />
+                : <XCircle size={26} className="shrink-0 mt-0.5" style={{ color: '#F87171' }} />
+              }
+              <div className="flex-1 min-w-0">
+                <div
+                  className="font-display font-bold text-lg"
+                  style={{ color: isCorrect ? '#A5B4FC' : '#FCA5A5' }}
+                >
+                  {isCorrect ? 'Туура!' : 'Туура эмес'}
+                </div>
+                {!isCorrect && (
+                  <div className="text-sm text-muted mt-0.5">
+                    Туура жооп:{' '}
+                    <span className="font-bold text-text">
+                      {q.type === 'tf'
+                        ? (q.a ? 'Туура' : 'Жалган')
+                        : q.opts?.[q.a as number]}
+                    </span>
+                  </div>
+                )}
+                {q.explanation && (
+                  <div className="text-sm text-muted mt-1.5 leading-relaxed">
+                    {q.explanation}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <button
+              onClick={next}
+              className={`btn3d full lg ${isCorrect ? '' : 'rose'}`}
+            >
+              {idx + 1 >= questions.length ? 'Бүттү' : (
+                <span className="flex items-center gap-2">
+                  Кийинки <ArrowRight size={16} />
+                </span>
+              )}
+            </button>
+          </div>
+        </div>
+      )}
     </>
+  )
+}
+
+function ResultRow({ label, value, color }: { label: string; value: string; color: string }) {
+  return (
+    <div
+      className="flex items-center justify-between py-2"
+      style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}
+    >
+      <span className="text-sm text-muted">{label}</span>
+      <span className="font-display font-bold text-base" style={{ color }}>{value}</span>
+    </div>
   )
 }
 
@@ -268,36 +328,44 @@ interface OptionButtonProps {
   isSelected: boolean
   isCorrect: boolean
   onClick: () => void
-  color: string
 }
 
-function OptionButton({ label, phase, isSelected, isCorrect, onClick, color }: OptionButtonProps) {
+function OptionButton({ label, phase, isSelected, isCorrect, onClick }: OptionButtonProps) {
   const revealed = phase === 'feedback'
 
-  let border = '1px solid #1F2538'
-  let bg = '#101524b3'
-  let textColor = '#E6E9F2'
+  let style: React.CSSProperties = {
+    background: 'rgba(255,255,255,0.04)',
+    border: '1.5px solid rgba(255,255,255,0.08)',
+    color: '#EEF2FF',
+  }
 
   if (revealed && isCorrect) {
-    border = `1px solid ${color}`
-    bg = `rgba(11,144,224,0.15)`
-    textColor = color
+    style = {
+      background: 'rgba(91,110,240,0.15)',
+      border: '1.5px solid rgba(91,110,240,0.5)',
+      color: '#A5B4FC',
+      boxShadow: '0 0 24px rgba(91,110,240,.12)',
+    }
   } else if (revealed && isSelected && !isCorrect) {
-    border = '1px solid rgba(255,75,75,0.6)'
-    bg = 'rgba(255,75,75,0.12)'
-    textColor = '#FF4B4B'
+    style = {
+      background: 'rgba(248,113,113,0.12)',
+      border: '1.5px solid rgba(248,113,113,0.5)',
+      color: '#FCA5A5',
+    }
   } else if (!revealed && isSelected) {
-    border = `1px solid ${color}`
-    bg = `rgba(11,144,224,0.15)`
-    textColor = color
+    style = {
+      background: 'rgba(91,110,240,0.15)',
+      border: '1.5px solid rgba(91,110,240,0.5)',
+      color: '#A5B4FC',
+    }
   }
 
   return (
     <button
       onClick={onClick}
       disabled={phase !== 'question'}
-      className="w-full text-left px-4 py-3.5 rounded-2xl font-semibold text-sm transition-all active:scale-[.98]"
-      style={{ border, background: bg, color: textColor }}
+      className="w-full text-left px-4 py-3.5 rounded-2xl font-semibold text-sm transition-all duration-200 active:scale-[.985]"
+      style={style}
     >
       {label}
     </button>

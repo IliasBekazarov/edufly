@@ -9,22 +9,43 @@ interface LeagueProps {
   user: User | null
 }
 
-function Avatar({ entry }: { entry: LeaderboardEntry }) {
+function Avatar({ entry, size = 40 }: { entry: LeaderboardEntry; size?: number }) {
   return (
     <div
-      className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold text-white"
-      style={{ background: stringToColor(entry.name) }}
+      className="rounded-full flex items-center justify-center font-bold text-white shrink-0"
+      style={{
+        width: size,
+        height: size,
+        background: stringToGradient(entry.name),
+        boxShadow: `0 4px 12px ${stringToBaseColor(entry.name)}55`,
+        fontSize: size * 0.35,
+      }}
     >
       {entry.name[0].toUpperCase()}
     </div>
   )
 }
 
-function stringToColor(s: string): string {
-  const colors = ['#0B90E0', '#1CB0F6', '#FF4B4B', '#FFD900', '#FF9600', '#CE82FF']
+function stringToBaseColor(s: string): string {
+  const colors = ['#5B6EF0', '#38BDF8', '#F87171', '#FCD34D', '#FB923C', '#A78BFA']
   let hash = 0
   for (const c of s) hash = (hash * 31 + c.charCodeAt(0)) & 0xffffffff
   return colors[Math.abs(hash) % colors.length]
+}
+
+function stringToGradient(s: string): string {
+  const pairs = [
+    ['#5B6EF0', '#A78BFA'],
+    ['#38BDF8', '#5B6EF0'],
+    ['#F87171', '#FB923C'],
+    ['#FCD34D', '#FB923C'],
+    ['#A78BFA', '#F472B6'],
+    ['#34D399', '#38BDF8'],
+  ]
+  let hash = 0
+  for (const c of s) hash = (hash * 31 + c.charCodeAt(0)) & 0xffffffff
+  const [c1, c2] = pairs[Math.abs(hash) % pairs.length]
+  return `linear-gradient(135deg, ${c1}, ${c2})`
 }
 
 function getUserLeague(user: User | null, leagues: LeagueType[]): LeagueType | null {
@@ -59,13 +80,17 @@ function LeagueCarousel({ leagues, userLeague }: { leagues: LeagueType[]; userLe
   return (
     <div className="mb-6">
       <div className="flex items-center justify-between mb-3">
-        <div className="font-bold text-text flex items-center gap-2"><Trophy size={16} className="text-sun" /> Бардык лигалар</div>
+        <div className="font-bold text-text text-sm flex items-center gap-2">
+          <Trophy size={16} style={{ color: '#FCD34D' }} />
+          Бардык лигалар
+        </div>
         {page < pages - 1 && (
           <button
             onClick={() => scrollToPage(page + 1)}
-            className="w-8 h-8 rounded-full bg-line flex items-center justify-center text-muted hover:text-text transition-colors"
+            className="w-7 h-7 rounded-full flex items-center justify-center text-muted hover:text-text transition-colors"
+            style={{ background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.1)' }}
           >
-            <ChevronRight size={16} />
+            <ChevronRight size={14} />
           </button>
         )}
       </div>
@@ -76,27 +101,27 @@ function LeagueCarousel({ leagues, userLeague }: { leagues: LeagueType[]; userLe
         className="flex gap-2.5 overflow-x-auto snap-x snap-mandatory"
         style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
       >
-        {leagues.map((league) => {
+        {leagues.map(league => {
           const active = league.id === userLeague?.id
           return (
             <div
               key={league.id}
-              className="snap-start shrink-0 flex flex-col items-center justify-center rounded-2xl p-3 text-center transition-all"
+              className="snap-start shrink-0 flex flex-col items-center justify-center rounded-2xl p-3 text-center transition-all duration-200"
               style={{
                 width: 'calc((100% - 20px) / 3)',
-                minHeight: 96,
-                background: active ? `${league.color}18` : '#101524b3',
-                border: `1.5px solid ${active ? league.color : '#1F2538'}`,
-                boxShadow: active ? `0 0 24px ${league.color}33` : undefined,
+                minHeight: 90,
+                background: active ? `${league.color}15` : 'rgba(255,255,255,0.04)',
+                border: `1.5px solid ${active ? league.color + '55' : 'rgba(255,255,255,0.07)'}`,
+                boxShadow: active ? `0 0 28px ${league.color}28` : undefined,
                 backdropFilter: 'blur(16px)',
               }}
             >
-              <div className="mb-1.5 leading-none flex items-center justify-center">
-                <EmojiIcon emoji={league.emoji} size={24} color={active ? league.color : '#7C8499'} />
+              <div className="mb-1.5">
+                <EmojiIcon emoji={league.emoji} size={22} color={active ? league.color : '#5E7194'} />
               </div>
               <div
-                className="font-display font-bold text-xs leading-tight"
-                style={{ color: active ? league.color : '#E6E9F2' }}
+                className="font-display font-bold text-xs"
+                style={{ color: active ? league.color : '#EEF2FF' }}
               >
                 {league.name}
               </div>
@@ -114,9 +139,9 @@ function LeagueCarousel({ leagues, userLeague }: { leagues: LeagueType[]; userLe
               onClick={() => scrollToPage(i)}
               className="rounded-full transition-all duration-300"
               style={{
-                width: i === page ? 16 : 6,
+                width: i === page ? 18 : 6,
                 height: 6,
-                background: i === page ? '#0B90E0' : '#1F2538',
+                background: i === page ? 'linear-gradient(90deg, #5B6EF0, #A78BFA)' : 'rgba(255,255,255,0.1)',
               }}
             />
           ))}
@@ -125,6 +150,12 @@ function LeagueCarousel({ leagues, userLeague }: { leagues: LeagueType[]; userLe
     </div>
   )
 }
+
+const PODIUM_STYLES = [
+  { rank: 2, height: 90,  color: '#94A3B8', gradient: 'linear-gradient(135deg, #94A3B8, #64748B)', label: '#2' },
+  { rank: 1, height: 120, color: '#FCD34D', gradient: 'linear-gradient(135deg, #FCD34D, #FB923C)', label: '#1' },
+  { rank: 3, height: 72,  color: '#CD9B5A', gradient: 'linear-gradient(135deg, #CD9B5A, #A0735A)', label: '#3' },
+]
 
 export function League({ leagues, user }: LeagueProps) {
   const [board, setBoard] = useState<LeaderboardEntry[]>([])
@@ -136,39 +167,49 @@ export function League({ leagues, user }: LeagueProps) {
   }, [])
 
   const top3 = board.slice(0, 3)
+  const podiumOrder = [top3[1], top3[0], top3[2]]
 
   return (
-    <div className="max-w-[640px] mx-auto px-4 lg:px-6 pt-4 lg:pt-8">
-      {/* League carousel */}
+    <div className="max-w-[640px] mx-auto px-4 lg:px-6 pt-5 lg:pt-8">
+
       {leagues.length > 0 && (
         <LeagueCarousel leagues={leagues} userLeague={userLeague} />
       )}
 
-      {/* Podium */}
+      {/* ── Podium ────────────────────────────────── */}
       {!loading && top3.length >= 3 && (
-        <div className="mb-6">
-          <div className="flex items-end justify-center gap-4">
-            {[top3[1], top3[0], top3[2]].map((entry, i) => {
-              const rank = i === 1 ? 1 : i === 0 ? 2 : 3
-              const heights = ['h-24', 'h-32', 'h-20']
-              const isFirst = rank === 1
+        <div className="mb-6 animate-slide-up">
+          <div className="flex items-end justify-center gap-3">
+            {PODIUM_STYLES.map(({ rank, height, color, gradient, label }, i) => {
+              const entry = podiumOrder[i]
+              if (!entry) return null
               return (
-                <div key={entry.id} className="flex flex-col items-center gap-2">
-                  {isFirst && <Crown size={20} className="text-sun" />}
-                  <div className="font-bold text-sm text-text">{entry.name}</div>
-                  <Avatar entry={entry} />
-                  <div className="font-bold text-xs text-muted">{entry.xp} XP</div>
+                <div key={rank} className="flex flex-col items-center gap-2">
+                  {rank === 1 && (
+                    <Crown size={20} style={{ color: '#FCD34D' }} className="animate-floaty" />
+                  )}
+                  <div className="font-bold text-xs text-text truncate max-w-[80px] text-center">
+                    {entry.name}
+                  </div>
+                  <Avatar entry={entry} size={rank === 1 ? 44 : 36} />
+                  <div className="text-[11px] text-muted tabular-nums">{entry.xp} XP</div>
                   <div
-                    className={`w-24 ${heights[i]} rounded-t-2xl flex items-end justify-center pb-3`}
+                    className="w-[88px] rounded-t-2xl flex items-end justify-center pb-2.5 relative overflow-hidden"
                     style={{
-                      background: rank === 1 ? '#FFD90033' : rank === 2 ? '#94A3B833' : '#CD7F3233',
-                      border: `1px solid ${rank === 1 ? '#FFD90066' : rank === 2 ? '#94A3B866' : '#CD7F3266'}`,
+                      height,
+                      background: `${color}18`,
+                      border: `1px solid ${color}33`,
                     }}
                   >
-                    <span className="font-display font-bold text-2xl" style={{
-                      color: rank === 1 ? '#FFD900' : rank === 2 ? '#94A3B8' : '#CD7F32',
-                    }}>
-                      #{rank}
+                    <div
+                      className="absolute inset-0 opacity-10 pointer-events-none"
+                      style={{ background: gradient }}
+                    />
+                    <span
+                      className="font-display font-bold text-2xl relative z-10"
+                      style={{ color }}
+                    >
+                      {label}
                     </span>
                   </div>
                 </div>
@@ -178,37 +219,62 @@ export function League({ leagues, user }: LeagueProps) {
         </div>
       )}
 
-      {/* Full leaderboard */}
-      {loading
-        ? <div className="text-center text-muted py-12">Жүктөлүүдө...</div>
-        : (
-          <div className="glass overflow-hidden mb-8">
-            {board.map((entry, idx) => {
-              const isMe = entry.id === user?.id
-              return (
+      {/* ── Leaderboard ───────────────────────────── */}
+      {loading ? (
+        <div className="text-center text-muted py-14">Жүктөлүүдө...</div>
+      ) : (
+        <div className="glass overflow-hidden mb-8 animate-slide-up">
+          {board.map((entry, i) => {
+            const isMe = entry.id === user?.id
+            const isTop3 = i < 3
+            return (
+              <div
+                key={entry.id}
+                className="flex items-center gap-3 px-4 py-3 transition-all duration-200"
+                style={{
+                  borderBottom: i < board.length - 1 ? '1px solid rgba(255,255,255,0.05)' : 'none',
+                  background: isMe ? 'rgba(91,110,240,0.08)' : 'transparent',
+                }}
+              >
+                {/* Rank */}
                 <div
-                  key={entry.id}
-                  className={`flex items-center gap-3 px-4 py-3 border-b border-line last:border-b-0 ${isMe ? 'bg-brand/10' : ''}`}
+                  className="w-6 text-center font-display font-bold text-sm shrink-0"
+                  style={{
+                    color: isTop3 ? '#FCD34D' : '#5E7194',
+                  }}
                 >
-                  <div className={`w-6 text-center font-display font-bold text-sm ${idx < 3 ? 'text-sun' : 'text-muted'}`}>
-                    {idx + 1}
-                  </div>
-                  <Avatar entry={entry} />
-                  <div className="flex-1 min-w-0">
-                    <div className={`font-semibold text-sm truncate ${isMe ? 'text-brand' : 'text-text'}`}>
-                      {entry.name} {isMe && '· сен'}
-                    </div>
-                    <div className="text-[11px] text-muted flex items-center gap-1">
-                      {entry.completed} сабак · <Flame size={11} className="text-warm" /> {entry.streak}
-                    </div>
-                  </div>
-                  <div className="font-display font-bold tabular-nums">{entry.xp}</div>
+                  {i + 1}
                 </div>
-              )
-            })}
-          </div>
-        )
-      }
+
+                <Avatar entry={entry} size={38} />
+
+                <div className="flex-1 min-w-0">
+                  <div
+                    className="font-semibold text-sm truncate"
+                    style={{ color: isMe ? '#818CF8' : '#EEF2FF' }}
+                  >
+                    {entry.name} {isMe && <span className="text-xs opacity-70">· сен</span>}
+                  </div>
+                  <div className="text-[11px] text-muted flex items-center gap-1 mt-0.5">
+                    {entry.completed} сабак
+                    <span className="opacity-40">·</span>
+                    <Flame size={11} style={{ color: '#FB923C' }} />
+                    {entry.streak}
+                  </div>
+                </div>
+
+                <div
+                  className="font-display font-bold tabular-nums text-sm shrink-0"
+                  style={{ color: isTop3 ? '#FCD34D' : '#EEF2FF' }}
+                >
+                  {entry.xp}
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      )}
+
     </div>
   )
 }
